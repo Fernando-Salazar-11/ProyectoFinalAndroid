@@ -16,8 +16,7 @@ export default function App() {
       <StatusBar style="dark" />
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Tienda</Text>
-        <Text style={styles.title}>Explora por categorías</Text>
-        <Text style={styles.subtitle}>Encuentra justo lo que estás buscando.</Text>
+        <Text style={styles.title}>Categorías</Text>
       </View>
 
       <View style={styles.categoryGrid}>
