@@ -22,7 +22,7 @@ const categories = [
   { name: 'Películas', color: '#FFF2D8', count: '64 productos' },
 ];
 
-// La persona que conecte la API puede usar apiUrl para consultar GET /categories.
+// Se puede usar apiUrl para consultar GET /categories.
 // La función debe devolver un arreglo de categorías.
 async function getCategories(apiUrl) {
   void apiUrl;
