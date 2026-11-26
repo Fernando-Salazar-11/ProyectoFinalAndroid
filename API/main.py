@@ -99,7 +99,7 @@ def seed_database() -> None:
                     ("Teclado mecánico", "Teclado mecánico para trabajo y videojuegos.", 1299.00,
                      "https://cougargaming.com/global/img/products/keyboards/600k/product-image.png"),
                     ("Cámara digital", "Cámara compacta para fotografía cotidiana.", 5499.00,
-                     "https://resources.sanborns.com.mx/imagenes-sanborns-ii/1200/13803331936.jpg?scale=500&qlty=75"),
+                     "https://filmafacil.com/wp-content/uploads/2022/08/PORTADA-PRODUCTO-SERVICIO-4-2.jpg"),
                 ],
             },
             {

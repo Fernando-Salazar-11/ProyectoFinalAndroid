@@ -13,7 +13,6 @@ import { StatusBar } from 'expo-status-bar';
 /*
   PANTALLA SECUNDARIA: productos de una categoría.
 
- 
     <ProductsScreen
       category={{ id, name, description }}   // la categoría que se tocó (de GET /categories)
       getProducts={getProducts}              // async (categoryId) => arreglo de GET /categories/{id}/products
@@ -160,7 +159,7 @@ function ProductCard({ product }) {
         <Image
           source={{ uri: product.image_url }}
           style={styles.image}
-          resizeMode="cover"
+          resizeMode="contain"
           onError={() => setImageFailed(true)}
           accessibilityLabel={`Imagen de ${product.name}`}
         />
@@ -237,46 +236,6 @@ function formatPrice(value) {
   if (!Number.isFinite(number)) return '—';
   const [integer, decimals] = number.toFixed(2).split('.');
   return `$${integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${decimals}`;
-}
-
-/* ---------- Datos de prueba (borrar cuando ya esté conectada la API) ---------- */
-
-const MOCK_PRODUCTS = [
-  {
-    id: 1,
-    category_id: 1,
-    name: 'Audífonos inalámbricos',
-    description: 'Audífonos Bluetooth con estuche de carga.',
-    price: 899.0,
-    image_url: 'https://images.unsplash.com/photo-150tf1634-5f8c7c1f8f3b?w=800',
-  },
-  {
-    id: 2,
-    category_id: 1,
-    name: 'Teclado mecánico',
-    description: 'Teclado mecánico para trabajo y videojuegos.',
-    price: 1299.0,
-    image_url: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800',
-  },
-  {
-    id: 3,
-    category_id: 1,
-    name: 'Cámara digital',
-    description: 'Cámara compacta para fotografía cotidiana.',
-    price: 5499.0,
-    image_url: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
-  },
-];
-
-export const MOCK_CATEGORY = {
-  id: 1,
-  name: 'Tecnología',
-  description: 'Dispositivos y accesorios tecnológicos.',
-};
-
-export async function mockGetProducts(categoryId) {
-  await new Promise((resolve) => setTimeout(resolve, 700));
-  return MOCK_PRODUCTS.filter((product) => product.category_id === categoryId);
 }
 
 /* ---------- Estilos (misma paleta que App.js y CategoryGrid.js) ---------- */
@@ -437,7 +396,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 190,
-    backgroundColor: '#E8EDE5',
+    backgroundColor: '#EFF2EC',
   },
   imagePlaceholder: {
     alignItems: 'center',
