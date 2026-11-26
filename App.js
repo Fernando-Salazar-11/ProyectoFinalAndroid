@@ -3,8 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import CategoryGrid from './CategoryGrid';
 
 /* 
-ESTE MAPA SOLO ES TEMPORAL. ENCARGAGO DE CONCETAR CON LA API
-FAVOR DE ELIMINAR ESTE MAPA Y OBTENER LAS CATEGORIAS DESDE LA API
+ESTE MAPA SOLO ES TEMPORAL. 
 */
 const categories = [
   { name: 'Tecnología', color: '#E8F0FF', count: '128 productos' },
