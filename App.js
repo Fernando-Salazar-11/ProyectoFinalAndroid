@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import CategoryGrid from './CategoryGrid';
 
 const categories = [
   { name: 'Tecnología', color: '#E8F0FF', count: '128 productos' },
@@ -19,17 +20,7 @@ export default function App() {
         <Text style={styles.title}>Categorías</Text>
       </View>
 
-      <View style={styles.categoryGrid}>
-        {categories.map((category) => (
-          <View
-            key={category.name}
-            style={[styles.categoryCard, { backgroundColor: category.color }]}
-          >
-            <Text style={styles.categoryName}>{category.name}</Text>
-            <Text style={styles.categoryCount}>{category.count}</Text>
-          </View>
-        ))}
-      </View>
+      <CategoryGrid categories={categories} />
     </View>
   );
 }
@@ -60,32 +51,5 @@ const styles = StyleSheet.create({
   subtitle: {
     color: '#777C74',
     fontSize: 14,
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  categoryCard: {
-    width: '48%',
-    minHeight: 128,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 14,
-    justifyContent: 'center',
-  },
-  categoryIcon: {
-    fontSize: 28,
-    marginBottom: 10,
-  },
-  categoryName: {
-    color: '#20281F',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  categoryCount: {
-    color: '#777C74',
-    fontSize: 12,
   },
 });
