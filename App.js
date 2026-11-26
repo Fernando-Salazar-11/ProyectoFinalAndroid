@@ -2,6 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import CategoryGrid from './CategoryGrid';
 
+/* 
+ESTE MAPA SOLO ES TEMPORAL. ENCARGAGO DE CONCETAR CON LA API
+FAVOR DE ELIMINAR ESTE MAPA Y OBTENER LAS CATEGORIAS DESDE LA API
+*/
 const categories = [
   { name: 'Tecnología', color: '#E8F0FF', count: '128 productos' },
   { name: 'Hogar', color: '#FCEBDD', count: '86 productos' },
