@@ -1,5 +1,13 @@
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import CategoryGrid from './CategoryGrid';
 
 /* 
@@ -15,13 +23,38 @@ const categories = [
   { name: 'Películas', color: '#FFF2D8', count: '64 productos' },
 ];
 
-// La persona que conecte la API puede reemplazar este cuerpo por GET /categories.
-// Debe devolver un arreglo de categorías.
-async function getCategories() {
+// La persona que conecte la API puede usar apiUrl para consultar GET /categories.
+// La función debe devolver un arreglo de categorías.
+async function getCategories(apiUrl) {
+  void apiUrl;
   return categories;
 }
 
 export default function App() {
+  const [urlInput, setUrlInput] = useState('');
+  const [apiUrl, setApiUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const applyApiUrl = () => {
+    const normalizedUrl = urlInput.trim().replace(/\/+$/, '');
+
+    if (!/^https?:\/\/[^/\s?#]+$/i.test(normalizedUrl)) {
+      setUrlError('Ingresa la URL base, por ejemplo http://192.168.1.20:8000.');
+      return;
+    }
+
+    if (/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(normalizedUrl)) {
+      setUrlError('En el teléfono, usa la IPv4 de tu computadora, no localhost ni 0.0.0.0.');
+      return;
+    }
+
+    setUrlError('');
+    setUrlInput(normalizedUrl);
+    setApiUrl(normalizedUrl);
+    setReloadKey((key) => key + 1);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -45,7 +78,69 @@ export default function App() {
           <Text style={styles.title}>Encuentra tus favoritos</Text>
         </View>
 
-        <CategoryGrid getCategories={getCategories} />
+        <View style={styles.connectionCard}>
+          <View style={styles.connectionHeader}>
+            <View style={styles.connectionIcon}>
+              <Text style={styles.connectionIconText}>↗</Text>
+            </View>
+            <View style={styles.connectionTitleGroup}>
+              <Text style={styles.connectionTitle}>URL de la API</Text>
+              <Text style={styles.connectionSubtitle}>IP y puerto del servidor</Text>
+            </View>
+            <View style={styles.connectionStep}>
+              <Text style={styles.connectionStepText}>URL</Text>
+            </View>
+          </View>
+
+          <Text style={styles.connectionDescription}>
+            Ingresa la URL base de la API que se ejecuta en tu computadora.
+          </Text>
+
+          <View style={styles.urlRow}>
+            <TextInput
+              value={urlInput}
+              onChangeText={(value) => {
+                setUrlInput(value);
+                setUrlError('');
+              }}
+              onSubmitEditing={applyApiUrl}
+              placeholder="http://192.168.1.20:8000"
+              placeholderTextColor="#9AA096"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              returnKeyType="done"
+              style={styles.urlInput}
+              accessibilityLabel="URL de la API"
+            />
+            <Pressable
+              style={({ pressed }) => [
+                styles.connectButton,
+                pressed && styles.connectButtonPressed,
+              ]}
+              onPress={applyApiUrl}
+              accessibilityRole="button"
+            >
+              <Text style={styles.connectButtonText}>Aplicar</Text>
+            </Pressable>
+          </View>
+
+          {urlError ? <Text style={styles.urlError}>{urlError}</Text> : null}
+          <Text style={styles.connectionHint}>
+            Usa la IPv4 de la computadora, no localhost. Ambos dispositivos deben estar en la misma red Wi-Fi.
+          </Text>
+          {apiUrl ? (
+            <Text style={styles.activeUrl} numberOfLines={1}>
+              URL seleccionada: {apiUrl}
+            </Text>
+          ) : null}
+        </View>
+
+        <CategoryGrid
+          getCategories={getCategories}
+          apiUrl={apiUrl}
+          reloadKey={reloadKey}
+        />
 
         <Text style={styles.footer}>Una selección para cada momento</Text>
       </ScrollView>
@@ -119,6 +214,120 @@ const styles = StyleSheet.create({
     color: '#596B56',
     fontSize: 11,
     fontWeight: '700',
+  },
+  connectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 23,
+    borderWidth: 1,
+    borderColor: '#E8EAE3',
+    padding: 17,
+    marginBottom: 27,
+    shadowColor: '#24372B',
+    shadowOpacity: 0.045,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1,
+  },
+  connectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  connectionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 13,
+    backgroundColor: '#E8EDE5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  connectionIconText: {
+    color: '#49634A',
+    fontSize: 17,
+    fontWeight: '800',
+  },
+  connectionTitleGroup: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  connectionTitle: {
+    color: '#26352B',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  connectionSubtitle: {
+    color: '#8A9087',
+    fontSize: 11,
+    marginTop: 3,
+  },
+  connectionStep: {
+    backgroundColor: '#F2F4EF',
+    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+  },
+  connectionStepText: {
+    color: '#64735E',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  connectionDescription: {
+    color: '#727A70',
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 13,
+    marginBottom: 12,
+  },
+  urlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  urlInput: {
+    flex: 1,
+    minWidth: 0,
+    height: 46,
+    backgroundColor: '#F7F8F5',
+    borderWidth: 1,
+    borderColor: '#E4E8E0',
+    borderRadius: 13,
+    paddingHorizontal: 12,
+    color: '#29372D',
+    fontSize: 12,
+    marginRight: 8,
+  },
+  connectButton: {
+    height: 46,
+    borderRadius: 13,
+    paddingHorizontal: 16,
+    backgroundColor: '#294337',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  connectButtonPressed: {
+    opacity: 0.82,
+  },
+  connectButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  urlError: {
+    color: '#A33D35',
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: 8,
+  },
+  connectionHint: {
+    color: '#92988F',
+    fontSize: 10,
+    lineHeight: 15,
+    marginTop: 9,
+  },
+  activeUrl: {
+    color: '#4E6A50',
+    fontSize: 10,
+    fontWeight: '600',
+    marginTop: 7,
   },
   hero: {
     backgroundColor: '#294337',

@@ -1,21 +1,30 @@
 import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-export default function CategoryGrid({ getCategories }) {
+export default function CategoryGrid({ getCategories, apiUrl, reloadKey }) {
   const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState(null);
 
   useEffect(() => {
     let isActive = true;
 
+    if (!apiUrl) {
+      setCategories([]);
+      setHasError(false);
+      setIsLoading(false);
+      return () => {
+        isActive = false;
+      };
+    }
+
     async function loadCategories() {
       setIsLoading(true);
       setHasError(false);
 
       try {
-        const result = await getCategories();
+        const result = await getCategories(apiUrl);
         if (!Array.isArray(result)) {
           throw new Error('getCategories debe devolver un arreglo.');
         }
@@ -31,7 +40,18 @@ export default function CategoryGrid({ getCategories }) {
     return () => {
       isActive = false;
     };
-  }, [getCategories]);
+  }, [getCategories, apiUrl, reloadKey]);
+
+  if (!apiUrl) {
+    return (
+      <View style={styles.stateCard}>
+        <Text style={styles.stateTitle}>Ingresa la URL de la API</Text>
+        <Text style={styles.stateText}>
+          Usa la IP de tu computadora y el puerto donde está ejecutándose el servidor.
+        </Text>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (
