@@ -9,24 +9,34 @@ import {
   View,
 } from 'react-native';
 import CategoryGrid from './CategoryGrid';
+import ProductsScreen from './ProductsScreen';
 
-/* 
-ESTE MAPA SOLO ES TEMPORAL. 
-*/
-const categories = [
-  { name: 'Tecnología', color: '#E8F0FF', count: '128 productos' },
-  { name: 'Hogar', color: '#FCEBDD', count: '86 productos' },
-  { name: 'Libros', color: '#F2EAFE', count: '214 productos' },
-  { name: 'Moda', color: '#FCE8EC', count: '156 productos' },
-  { name: 'Deportes', color: '#E4F3E9', count: '93 productos' },
-  { name: 'Películas', color: '#FFF2D8', count: '64 productos' },
+const CATEGORY_COLORS = [
+  '#E8F0FF',
+  '#FCEBDD',
+  '#F2EAFE',
+  '#FCE8EC',
+  '#E4F3E9',
+  '#FFF2D8',
 ];
 
-// Se puede usar apiUrl para consultar GET /categories.
-// La función debe devolver un arreglo de categorías.
-async function getCategories(apiUrl) {
-  void apiUrl;
-  return categories;
+async function getCategories(baseUrl) {
+  if (!baseUrl) return [];
+
+  const response = await fetch(`${baseUrl}/categories`);
+  if (!response.ok) {
+    throw new Error(`Error ${response.status} al obtener categorías`);
+  }
+
+  const data = await response.json();
+  if (!Array.isArray(data)) {
+    throw new Error('Respuesta inválida de /categories');
+  }
+
+  return data.map((item, index) => ({
+    ...item,
+    color: item.color || CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+  }));
 }
 
 export default function App() {
@@ -34,6 +44,7 @@ export default function App() {
   const [apiUrl, setApiUrl] = useState('');
   const [urlError, setUrlError] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const applyApiUrl = () => {
     const normalizedUrl = urlInput.trim().replace(/\/+$/, '');
@@ -51,8 +62,37 @@ export default function App() {
     setUrlError('');
     setUrlInput(normalizedUrl);
     setApiUrl(normalizedUrl);
+    setSelectedCategory(null);
     setReloadKey((key) => key + 1);
   };
+
+  const getProducts = async (categoryId) => {
+    if (!apiUrl) {
+      throw new Error('No hay una URL de API configurada.');
+    }
+
+    const response = await fetch(`${apiUrl}/categories/${categoryId}/products`);
+    if (!response.ok) {
+      throw new Error(`Error ${response.status} al obtener productos`);
+    }
+
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      throw new Error('Respuesta inválida de productos');
+    }
+
+    return data;
+  };
+
+  if (selectedCategory) {
+    return (
+      <ProductsScreen
+        category={selectedCategory}
+        getProducts={getProducts}
+        onBack={() => setSelectedCategory(null)}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -139,6 +179,7 @@ export default function App() {
           getCategories={getCategories}
           apiUrl={apiUrl}
           reloadKey={reloadKey}
+          onSelectCategory={setSelectedCategory}
         />
 
         <Text style={styles.footer}>Una selección para cada momento</Text>
@@ -161,19 +202,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 28,
-  },
-  brandMark: {
-    width: 44,
-    height: 44,
-    borderRadius: 15,
-    backgroundColor: '#274236',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandInitial: {
-    color: '#FFFFFF',
-    fontSize: 19,
-    fontWeight: '800',
   },
   brandCopy: {
     flex: 1,
@@ -347,46 +375,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#3C5949',
     opacity: 0.8,
   },
-  eyebrow: {
-    color: '#BFD0BD',
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.7,
-    marginBottom: 13,
-  },
   title: {
     color: '#FFFFFF',
     fontSize: 29,
     lineHeight: 35,
     fontWeight: '800',
     maxWidth: 270,
-  },
-  subtitle: {
-    color: '#D7E0D5',
-    fontSize: 13,
-    lineHeight: 19,
-    marginTop: 10,
-    maxWidth: 280,
-  },
-  heroTag: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginTop: 19,
-  },
-  heroTagText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  heroTagArrow: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    marginLeft: 8,
   },
   footer: {
     color: '#9A9F96',
