@@ -14,8 +14,8 @@ const categories = [
   { name: 'Películas', color: '#FFF2D8', count: '64 productos' },
 ];
 
-// La persona que conecte la API puede reemplazar este cuerpo por GET /categories.
-// Debe devolver un arreglo de categorías.
+// Reemplazar este cuerpo por GET /categories.
+// Devolver un arreglo de categorías.
 async function getCategories() {
   return categories;
 }
