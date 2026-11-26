@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-export default function CategoryGrid({ getCategories, apiUrl, reloadKey }) {
+export default function CategoryGrid({
+  getCategories,
+  apiUrl,
+  reloadKey,
+  onSelectCategory,
+}) {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -99,24 +104,39 @@ export default function CategoryGrid({ getCategories, apiUrl, reloadKey }) {
           const categoryKey = category.id ?? category.name;
           const imageVisible = expandedCategory === categoryKey;
           const hasImage = Boolean(category.image_url);
+          const canSelect = typeof onSelectCategory === 'function';
+          const isInteractive = canSelect || hasImage;
+
+          const toggleImage = () => {
+            if (!hasImage) return;
+            setExpandedCategory(imageVisible ? null : categoryKey);
+          };
+
+          const handleCardPress = () => {
+            if (canSelect) {
+              onSelectCategory(category);
+            } else {
+              toggleImage();
+            }
+          };
 
           return (
             <Pressable
               key={categoryKey}
-              disabled={!hasImage}
-              onPress={() =>
-                setExpandedCategory(imageVisible ? null : categoryKey)
-              }
+              disabled={!isInteractive}
+              onPress={handleCardPress}
               style={({ pressed }) => [
                 styles.card,
                 { backgroundColor: category.color || '#E8F0FF' },
-                pressed && hasImage && styles.cardPressed,
+                pressed && isInteractive && styles.cardPressed,
               ]}
-              accessibilityRole={hasImage ? 'button' : undefined}
+              accessibilityRole={isInteractive ? 'button' : undefined}
               accessibilityLabel={
-                hasImage
-                  ? `${category.name}. Toca para ${imageVisible ? 'ocultar' : 'ver'} la imagen.`
-                  : category.name
+                canSelect
+                  ? `Ver productos de ${category.name}`
+                  : hasImage
+                    ? `${category.name}. Toca para ${imageVisible ? 'ocultar' : 'ver'} la imagen.`
+                    : category.name
               }
             >
               <View style={styles.cardTop}>
@@ -126,9 +146,21 @@ export default function CategoryGrid({ getCategories, apiUrl, reloadKey }) {
                   </Text>
                 </View>
                 {hasImage ? (
-                  <View style={styles.actionBadge}>
+                  <Pressable
+                    hitSlop={8}
+                    onPress={(e) => {
+                      if (canSelect) e.stopPropagation();
+                      toggleImage();
+                    }}
+                    style={({ pressed }) => [
+                      styles.actionBadge,
+                      pressed && styles.cardPressed,
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${imageVisible ? 'Ocultar' : 'Ver'} imagen de ${category.name}`}
+                  >
                     <Text style={styles.actionIcon}>{imageVisible ? '−' : '↗'}</Text>
-                  </View>
+                  </Pressable>
                 ) : null}
               </View>
 
@@ -150,13 +182,15 @@ export default function CategoryGrid({ getCategories, apiUrl, reloadKey }) {
 
               <View style={styles.cardFooter}>
                 <Text style={styles.cardHint}>
-                  {hasImage
-                    ? imageVisible
-                      ? 'Ocultar imagen'
-                      : 'Toca para ver imagen'
-                    : 'Categoría destacada'}
+                  {canSelect
+                    ? 'Toca para ver productos'
+                    : hasImage
+                      ? imageVisible
+                        ? 'Ocultar imagen'
+                        : 'Toca para ver imagen'
+                      : 'Categoría destacada'}
                 </Text>
-                <Text style={styles.footerArrow}>{hasImage ? '↗' : '•'}</Text>
+                <Text style={styles.footerArrow}>{canSelect || hasImage ? '→' : '•'}</Text>
               </View>
             </Pressable>
           );
